@@ -130,6 +130,8 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'tastypie',
+    'rest_api',
+    'coconuts',
 )
 
 # A sample logging configuration. The only tangible logging
