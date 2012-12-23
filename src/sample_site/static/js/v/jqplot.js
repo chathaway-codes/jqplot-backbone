@@ -9,18 +9,19 @@ define(["jquery", "backbone", "backbone-tastypie", "jquery.jqplot"], function($,
      * @param hash2 The "preferred" hash
      */
     function mergeHash(hash1, hash2) {
+        var out = {};
         for(var key in hash2) {
             if(hash2[key] != null) {
                 if(typeof hash2[key] == "object" && hash1[key] != null) {
                     // Recurse and merge
-                    hash1[key] = mergeHash(hash1[key], hash2[key]);
+                    out[key] = mergeHash(hash1[key], hash2[key]);
                 } else {
                     // Else, take the specified value over the default
-                    hash1[key] = hash2[key];
+                    out[key] = hash2[key];
                 }
             }
         }
-        return hash1;
+        return out;
     }
 
     var view = Backbone.View.extend({
@@ -32,16 +33,19 @@ define(["jquery", "backbone", "backbone-tastypie", "jquery.jqplot"], function($,
               xaxis: {
                 renderer: $.jqplot.CategoryAxisRenderer
               },
-              yaxis: {
-                autoscale:true
-              },
             }
         },
         /**
          * This method is responsible for initializing all the variables,
          *  scanning through the supplied options and meshing them with our defaults,
          *  and setting anything that needs to be set
-         * This method will call "fetch" on the collection specified!
+         * You must call fetch for the graphs to render!
+         * You can specify the following in the constructor:
+         *  -> jqplotOptions
+         *  -> variables
+         *  -> variableType
+         *  -> collection
+         *  -> ticks
          */
         initialize: function() {
             if(this.options.jqplotOptions != null) {
@@ -52,31 +56,77 @@ define(["jquery", "backbone", "backbone-tastypie", "jquery.jqplot"], function($,
                 throw "A collection must be specified to query against!";
             }
             // Make sure both X and Y values are specified
-            if(this.options.X == null || this.options.Y == null) {
-                throw "Both a X and Y option are required.";
+            if(this.options.variables == null) {
+                throw "An array of variables is required.";
             }
 
-            this.options.collection.X = this.options.X;
-            this.options.collection.Y = this.options.Y;
-            this.options.collection.jqplotOptions = this.jqplotOptions;
+            if(this.options.variableType == null) {
+                this.variableType = "lines";
+            } else {
+                this.variableType = this.options.variableType;
+            }
+
+            this.variables = this.options.variables;
+            this.ticks = this.options.ticks;
+
+            this.collection.bind('reset', this.render, this);
+
+            self = this;
 
             this.failure = this.options.failure;
-            this.options.collection.el = this.el;
-            this.options.collection.fetch({success: this.fetchComplete, failure: this.fetchFailure});
+            //this.options.collection.fetch({success: this.fetchComplete, failure: this.fetchFailure});
         },
 
         /**
-         * This function should parse the collection, and render the chart
+         * This is called after the collection has been fetched
          */
-        fetchComplete: function(collection, response, options) {
+        render: function() {
             // Create the list that will be fed into jqplot
-            var elements = []
-            collection.forEach(function(e) {
-                elements.push([e.get(e.collection.X), e.get(e.collection.Y)]);
-            });
+            var elements;
+            
+            if(this.variableType == "groups") {
+                elements = this.dataGroups();
+            } else if(this.variableType="lines") {
+                elements = this.dataLines();
+            } else {
+                throw "Unknown variable type: " + this.variableType;
+            }
+            console.log(elements);
 
-            console.log(collection.jqplotOptions);
-            $.jqplot($(collection.el).attr('id'), [elements], collection.jqplotOptions);
+            // Get the ticks, if they are needed
+            if(this.ticks != null) {
+                this.jqplotOptions['axes']['xaxis']['ticks'] = this.ticks(this.collection);
+            }
+
+            console.log(this.jqplotOptions);
+
+            $.jqplot($(this.el).attr('id'), elements, this.jqplotOptions);
+        },
+
+        dataGroups: function() {
+            var self = this;
+            var elements = [];
+            this.collection.forEach(function(e) {
+                for(var i=0; i < self.variables.length; i++) {
+                    if(elements[i] == null)
+                        elements.push([]);
+                    elements[i].push(e.get(self.variables[i]));
+                }
+            });
+            return elements;
+        },
+
+        dataLines: function() {
+            var elements = []
+            var self = this;
+            this.collection.forEach(function(e) {
+                var elements_inner = [];
+                for(var i=0; i < self.variables.length; i++) {
+                    elements_inner.push(e.get(self.variables[i]));
+                }
+                elements.push(elements_inner);
+            });
+            return [elements];
         },
 
         /**
