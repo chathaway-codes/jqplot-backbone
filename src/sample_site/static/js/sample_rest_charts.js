@@ -1,5 +1,5 @@
 require(["jquery", "v/jqplot", "m/coconuts", "jquery.jqplot", 
-    "plugins/jqplot.barRenderer.min", "plugins/jqplot.barRenderer.min", "plugins/jqplot.dateAxisRenderer.min", "plugins/jqplot.canvasTextRenderer.min", "plugins/jqplot.canvasAxisTickRenderer.min", "plugins/jqplot.categoryAxisRenderer.min"], 
+    "plugins/jqplot.barRenderer.min", "plugins/jqplot.barRenderer.min", "plugins/jqplot.dateAxisRenderer.min", "plugins/jqplot.canvasTextRenderer.min", "plugins/jqplot.canvasAxisTickRenderer.min", "plugins/jqplot.categoryAxisRenderer.min", "plugins/jqplot.pieRenderer.min"], 
     function($, jqChart, coconuts) {
     "use strict";
 
@@ -103,6 +103,38 @@ require(["jquery", "v/jqplot", "m/coconuts", "jquery.jqplot",
             "looking_to_sell",
         ],
         variableType: "groups",
+    });
+
+    new jqChart({
+        el: $("#buy_sell_pie"),
+        collection: collection,
+        jqplotOptions: {
+            title: "Buy vs Sell",
+            seriesDefaults: {
+                renderer: $.jqplot.PieRenderer,
+                rendererOptions: {
+                    showDataLabels: true,
+                },
+            },
+            axesDefaults: {
+                tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+                tickOptions: {
+                    angle: 30,
+                },
+            },
+            legend: { show:true, location: 'e' }
+        },
+        variableType: function(collection) {
+            var self = this;
+            var elements = [ ["Selling", 0], ["Buying", 0]];
+
+            this.collection.forEach(function(e) {
+                elements[0][1] += e.get("looking_to_sell");
+                elements[1][1] += e.get("looking_to_buy");
+            });
+
+            return [elements];
+        },
     });
 
     collection.fetch();

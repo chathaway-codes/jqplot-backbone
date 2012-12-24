@@ -1,4 +1,4 @@
-define(["jquery", "backbone", "backbone-tastypie", "jquery.jqplot"], function($, Backbone) {
+define(["jquery", "backbone", "underscore", "backbone-tastypie", "jquery.jqplot"], function($, Backbone, _) {
     "use strict";
 
     /**
@@ -43,7 +43,7 @@ define(["jquery", "backbone", "backbone-tastypie", "jquery.jqplot"], function($,
          * You can specify the following in the constructor:
          *  -> jqplotOptions
          *  -> variables
-         *  -> variableType
+         *  -> variableType ["groups", "lines", "pie", function(collection)]
          *  -> collection
          *  -> ticks
          */
@@ -56,7 +56,7 @@ define(["jquery", "backbone", "backbone-tastypie", "jquery.jqplot"], function($,
                 throw "A collection must be specified to query against!";
             }
             // Make sure both X and Y values are specified
-            if(this.options.variables == null) {
+            if(this.options.variables == null && !_.isFunction(this.options.variableType)) {
                 throw "An array of variables is required.";
             }
 
@@ -86,19 +86,20 @@ define(["jquery", "backbone", "backbone-tastypie", "jquery.jqplot"], function($,
             
             if(this.variableType == "groups") {
                 elements = this.dataGroups();
-            } else if(this.variableType="lines") {
+            } else if(this.variableType == "lines") {
                 elements = this.dataLines();
+            } else if(this.variableType == "pie") {
+                elements = this.dataPie();
+            } else if(_.isFunction(this.variableType)) {
+                elements = this.variableType(this.collection);
             } else {
                 throw "Unknown variable type: " + this.variableType;
             }
-            console.log(elements);
 
             // Get the ticks, if they are needed
             if(this.ticks != null) {
                 this.jqplotOptions['axes']['xaxis']['ticks'] = this.ticks(this.collection);
             }
-
-            console.log(this.jqplotOptions);
 
             $.jqplot($(this.el).attr('id'), elements, this.jqplotOptions);
         },
@@ -126,6 +127,21 @@ define(["jquery", "backbone", "backbone-tastypie", "jquery.jqplot"], function($,
                 }
                 elements.push(elements_inner);
             });
+            return [elements];
+        },
+
+        dataPie: function() {
+            var self = this;
+            var elements = [];
+
+            this.collection.forEach(function(e) {
+                for(var i=0; i < self.variables.length; i++) {
+                    if(elements[i] == null)
+                        elements.push([self.variables[i], 0]);
+                    elements[i][1] = elements[i][1] + e.get(self.variables[i]);
+                }
+            });
+
             return [elements];
         },
 
