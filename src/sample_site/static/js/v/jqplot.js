@@ -1,4 +1,41 @@
 define(["jquery", "backbone", "underscore", "backbone-tastypie", "jquery.jqplot"], function($, Backbone, _) {
+    /** 
+     * jqplot class
+     * <p>This class provides an API for generating graphs.
+     *  It handles registering itself with the Backbone collection
+     *  so that it can render as soon as the follection is fetched.</p>
+     * @name jqplot
+     * @class jqplot
+     * @constructor
+     * @param options
+     *  The options parameter should be a hash. It will accept the following options:
+     * <ul>
+     *   <li>jqplotOptions - These options will be merged with the default options provided by this class.
+     *     Preference will be given to the options provided in this constructor.</li>
+     *   <li>variables - An array of the variables that should be used for constructing the graphs.
+     *     These variables will fetched from each model provided by the colleciton and inserted 
+     *      into an array that will be given to jqplot in a manner specified by the variableType option.
+     *   </li>
+     *   <li>variableType - This indicates how the variables will be put into an array. The valid options are:
+     *    <ul>
+     *      <li>groups - Data is "grouped" in a way that can be used for bar charts. Each variable represents one
+     *        bar in each group.</li>
+     *      <li>lines - Data is out into tuples consisting of ["Tick", "Value]. This data representation is appropiate
+     *        line charts.</li>
+     *      <li>pie - Data is put into a form appropiate for pie charts. Each variable is summed across the collection,
+     *        and put into a single slice in the pie chart</li>
+     *      <li>function(collection) - This should be a function that accepts a variable and returns an array of data.
+     *        The data will be provided to this function in the first parameter, as the fetched collection. Please look
+     *          at the jqplot documentation for how this data should be parsed.</li>
+     *    </ul>
+     *   <li>collection - The collection that will be used as the data source for this chart. This class will register itself
+     *     with the collection so that it calls the "render" function when the data is available. This allows for async data requests,
+     *     and the reuse of collections.</li>
+     *   <li>ticks - This variable will be used to generate the "ticks" for the line charts. It is passed into jqplot as
+     *     the "['axes']['xaxis']['ticks']" option. This should be either null, or an array of strings.</li>
+     * </ul>
+     * @return jqplot view object
+     */
     "use strict";
 
     /**
@@ -100,7 +137,6 @@ define(["jquery", "backbone", "underscore", "backbone-tastypie", "jquery.jqplot"
             if(this.ticks != null) {
                 this.jqplotOptions['axes']['xaxis']['ticks'] = this.ticks(this.collection);
             }
-
             $.jqplot($(this.el).attr('id'), elements, this.jqplotOptions);
         },
 
