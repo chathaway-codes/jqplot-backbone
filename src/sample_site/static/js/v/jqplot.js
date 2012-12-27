@@ -3,7 +3,7 @@ define(["jquery", "backbone", "underscore", "backbone-tastypie", "jquery.jqplot"
      * jqplot class
      * <p>This class provides an API for generating graphs.
      *  It handles registering itself with the Backbone collection
-     *  so that it can render as soon as the follection is fetched.</p>
+     *  so that it can render as soon as the collection is fetched.</p>
      * @name jqplot
      * @class jqplot
      * @constructor
@@ -58,6 +58,13 @@ define(["jquery", "backbone", "underscore", "backbone-tastypie", "jquery.jqplot"
                 }
             }
         }
+
+        // And make sure to keep the keys from hash1
+        for(var key in hash1) {
+            if(out[key] == null) {
+                out[key] = hash1[key];
+            }
+        }
         return out;
     }
 
@@ -97,9 +104,7 @@ define(["jquery", "backbone", "underscore", "backbone-tastypie", "jquery.jqplot"
                 throw "An array of variables is required.";
             }
 
-            if(this.options.variableType == null) {
-                this.variableType = "lines";
-            } else {
+            if(this.options.variableType != null) {
                 this.variableType = this.options.variableType;
             }
 
@@ -114,13 +119,14 @@ define(["jquery", "backbone", "underscore", "backbone-tastypie", "jquery.jqplot"
             //this.options.collection.fetch({success: this.fetchComplete, failure: this.fetchFailure});
         },
 
+
         /**
          * This is called after the collection has been fetched
          */
         render: function() {
             // Create the list that will be fed into jqplot
             var elements;
-            
+
             if(this.variableType == "groups") {
                 elements = this.dataGroups();
             } else if(this.variableType == "lines") {
@@ -172,8 +178,12 @@ define(["jquery", "backbone", "underscore", "backbone-tastypie", "jquery.jqplot"
 
             this.collection.forEach(function(e) {
                 for(var i=0; i < self.variables.length; i++) {
-                    if(elements[i] == null)
+                    if(elements[i] == null) {
                         elements.push([self.variables[i], 0]);
+                        // If there is a label specified, use that
+                        if(self.ticks[i] != null)
+                            elements[i][0] = self.ticks[i];
+                    }
                     elements[i][1] = elements[i][1] + e.get(self.variables[i]);
                 }
             });
@@ -190,7 +200,9 @@ define(["jquery", "backbone", "underscore", "backbone-tastypie", "jquery.jqplot"
                 this.failure(response);
             else
                 throw "Failed to fetch data: " + response;
-        }
+        },
+
+        variableType: "lines",
     });
 
     return view;
