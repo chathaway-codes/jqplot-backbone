@@ -72,6 +72,9 @@ define(["jquery", "backbone", "underscore", "backbone-tastypie", "jquery.jqplot"
         jqplotOptions: {
             axesDefaults: {
                 tickRenderer: $.jqplot.CanvasAxisTickRenderer ,
+                tickOptions: {
+                    angle: 30,
+                },
             },
             axes: {
               xaxis: {
@@ -109,7 +112,8 @@ define(["jquery", "backbone", "underscore", "backbone-tastypie", "jquery.jqplot"
             }
 
             this.variables = this.options.variables;
-            this.ticks = this.options.ticks;
+            if(this.options.ticks != null)
+                this.ticks = this.options.ticks;
 
             this.collection.bind('reset', this.render, this);
 
@@ -140,9 +144,15 @@ define(["jquery", "backbone", "underscore", "backbone-tastypie", "jquery.jqplot"
             }
 
             // Get the ticks, if they are needed
+            console.log(this.ticks);
             if(this.ticks != null) {
-                this.jqplotOptions['axes']['xaxis']['ticks'] = this.ticks(this.collection);
+                if(_.isFunction(this.ticks))
+                    this.jqplotOptions['axes']['xaxis']['ticks'] = this.ticks(this.collection);
+                else
+                    this.jqplotOptions['axes']['xaxis']['ticks'] = this.ticks;
+                console.log(this.jqplotOptions['axes']['xaxis']['ticks']);
             }
+
             $.jqplot($(this.el).attr('id'), elements, this.jqplotOptions);
         },
 
