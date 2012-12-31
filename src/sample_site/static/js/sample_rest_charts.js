@@ -27,6 +27,37 @@ require(["jquery", "v/jqplot", "v/jqplot.piechart", "v/jqplot.barchart", "v/jqpl
         ],
     });
 
+    new jqLineChart({
+        el: $("#sell_v_time_buy_v_time"),
+        collection: collection,
+        jqplotOptions: {
+            title: "Sell vs Time",
+            series: [
+                {label: "Looking to sell"},
+                {label: "Looking to buy"},
+            ],
+            axes: {
+                xaxis: {
+                    renderer: $.jqplot.DateAxisRenderer,
+                    tickOptions: {
+                        formatString: "%b %#d, %Y",
+                    },
+                }
+            },
+        },
+        variables: [
+            [
+                "when",
+                "looking_to_sell",
+            ],
+            [
+                "when",
+                "looking_to_buy",
+            ],
+        ],
+    });
+
+
     // Make a bar chart for sell v buy over time
     new jqChart({
         el: $("#buy_v_time"),

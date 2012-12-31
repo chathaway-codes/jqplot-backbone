@@ -1,4 +1,6 @@
-define(["jquery", "backbone", "underscore", "backbone-tastypie", "jquery.jqplot"], function($, Backbone, _) {
+define(["jquery", "backbone", "underscore", "backbone-tastypie", "jquery.jqplot",
+        "plugins/jqplot.canvasAxisTickRenderer.min", "plugins/jqplot.canvasTextRenderer.min", "plugins/jqplot.categoryAxisRenderer.min",
+    ], function($, Backbone, _) {
     /** 
      * jqplot class
      * <p>This class provides an API for generating graphs.
@@ -70,6 +72,7 @@ define(["jquery", "backbone", "underscore", "backbone-tastypie", "jquery.jqplot"
 
     var view = Backbone.View.extend({
         jqplotOptions: {
+            legend: { show:true, location: 'ne' },
             axesDefaults: {
                 tickRenderer: $.jqplot.CanvasAxisTickRenderer ,
                 tickOptions: {
@@ -144,7 +147,6 @@ define(["jquery", "backbone", "underscore", "backbone-tastypie", "jquery.jqplot"
             }
 
             // Get the ticks, if they are needed
-            console.log(this.ticks);
             if(this.ticks != null) {
                 if(_.isFunction(this.ticks))
                     this.jqplotOptions['axes']['xaxis']['ticks'] = this.ticks(this.collection);
@@ -152,6 +154,9 @@ define(["jquery", "backbone", "underscore", "backbone-tastypie", "jquery.jqplot"
                     this.jqplotOptions['axes']['xaxis']['ticks'] = this.ticks;
                 console.log(this.jqplotOptions['axes']['xaxis']['ticks']);
             }
+
+            if(elements.length == 0 || elements[0].length == 0)
+                return;
 
             $.jqplot($(this.el).attr('id'), elements, this.jqplotOptions);
         },
@@ -172,14 +177,34 @@ define(["jquery", "backbone", "underscore", "backbone-tastypie", "jquery.jqplot"
         dataLines: function() {
             var elements = []
             var self = this;
-            this.collection.forEach(function(e) {
-                var elements_inner = [];
-                for(var i=0; i < self.variables.length; i++) {
-                    elements_inner.push(e.get(self.variables[i]));
+            function addElements(e, variables) {
+                var arr = []
+
+                for(var i=0; i < variables.length; i++) {
+                    arr.push(e.get(variables[i]));
                 }
-                elements.push(elements_inner);
-            });
-            return [elements];
+                return arr;
+            }
+
+            // If we are dealing with an array of variable variables, do this for each
+            if(this.variables[0] instanceof Array) {
+                for(var i=0; i < this.variables.length; i++) {
+                    var t_el = [];
+                    this.collection.forEach(function(e) {
+                        t_el.push(addElements(e, self.variables[i]));
+                    });
+                    elements.push(t_el);
+                }
+            }
+            else {
+                this.collection.forEach(function(e) {
+                    elements.push(addElements(e, self.variables));
+                });
+
+                elements = [elements];
+            }
+
+            return elements;
         },
 
         dataPie: function() {
