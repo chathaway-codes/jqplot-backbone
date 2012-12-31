@@ -118,12 +118,17 @@ define(["jquery", "backbone", "underscore", "backbone-tastypie", "jquery.jqplot"
             if(this.options.ticks != null)
                 this.ticks = this.options.ticks;
 
-            this.collection.bind('reset', this.render, this);
+            if(this.collection instanceof Array) {
+                // If this already an array, put it into a collection and call render
+                setTimeout(function() {
+                    this.collection = new Backbone.Collection(this.collection);
+                    this.render();
+                }, 1);
+            } else {
+                this.collection.bind('reset', this.render, this);
+            }
 
             self = this;
-
-            this.failure = this.options.failure;
-            //this.options.collection.fetch({success: this.fetchComplete, failure: this.fetchFailure});
         },
 
 
