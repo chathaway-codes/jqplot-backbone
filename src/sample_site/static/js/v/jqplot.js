@@ -120,9 +120,10 @@ define(["jquery", "backbone", "underscore", "backbone-tastypie", "jquery.jqplot"
 
             if(this.collection instanceof Array) {
                 // If this already an array, put it into a collection and call render
+                var self = this;
                 setTimeout(function() {
-                    this.collection = new Backbone.Collection(this.collection);
-                    this.render();
+                    self.collection = new Backbone.Collection(self.collection);
+                    self.render();
                 }, 1);
             } else {
                 this.collection.bind('reset', this.render, this);
