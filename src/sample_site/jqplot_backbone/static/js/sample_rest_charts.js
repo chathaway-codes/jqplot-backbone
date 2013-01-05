@@ -1,6 +1,6 @@
-require(["jquery", "v/jqplot", "v/jqplot.piechart", "v/jqplot.barchart", "v/jqplot.linechart", "m/coconuts", "jquery.jqplot",
+require(["jquery", "v/jqplot", "v/jqplot.piechart", "v/jqplot.barchart", "v/jqplot.linechart", "m/coconuts", "m/actual_coconuts", "jquery.jqplot",
     "plugins/jqplot.dateAxisRenderer.min", "plugins/jqplot.canvasAxisTickRenderer.min"], 
-    function($, jqChart, jqPieChart, jqBarChart, jqLineChart, coconuts) {
+    function($, jqChart, jqPieChart, jqBarChart, jqLineChart, coconuts, actual_coconuts) {
     "use strict";
 
     var collection = new coconuts();
@@ -56,6 +56,8 @@ require(["jquery", "v/jqplot", "v/jqplot.piechart", "v/jqplot.barchart", "v/jqpl
             ],
         ],
     });
+
+
 
 
     // Make a bar chart for sell v buy over time
@@ -315,5 +317,39 @@ require(["jquery", "v/jqplot", "v/jqplot.piechart", "v/jqplot.barchart", "v/jqpl
         ],
     });
 
+    var c1 = new actual_coconuts();
+
+
+    new jqLineChart({
+        el: $("#sell_v_time_actual_sell_v_time"),
+        collection: [
+            collection,
+            c1,
+        ],
+        jqplotOptions: {
+            title: "Sell vs Time and Buy vs Time",
+            axes: {
+                xaxis: {
+                    renderer: $.jqplot.DateAxisRenderer,
+                    tickOptions: {
+                        formatString: "%b %#d, %Y",
+                    },
+                }
+            },
+        },
+        variables: [
+            [
+                "when",
+                "looking_to_sell",
+            ],
+            [
+                "when",
+                "total_sold",
+            ],
+        ],
+    });
+
     collection.fetch();
+    c1.fetch();
+
 });

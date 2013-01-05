@@ -1,0 +1,80 @@
+<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"> <style>
+	.KEYW {color: #933;}
+	.COMM {color: #bbb; font-style: italic;}
+	.NUMB {color: #393;}
+	.STRN {color: #393;}
+	.REGX {color: #339;}
+	.line {border-right: 1px dotted #666; color: #666; font-style: normal;}
+	</style></head><body><pre><span class='line'>  1</span> <span class="NAME">define</span><span class="PUNC">(</span><span class="PUNC">[</span><span class="STRN">"jquery"</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="STRN">"v/jqplot"</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="STRN">"jquery.jqplot"</span><span class="PUNC">,</span><span class="WHIT"> 
+<span class='line'>  2</span>     </span><span class="STRN">"plugins/jqplot.canvasAxisTickRenderer.min"</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="STRN">"plugins/jqplot.categoryAxisRenderer.min"</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="STRN">"plugins/jqplot.pieRenderer.min"</span><span class="PUNC">]</span><span class="PUNC">,</span><span class="WHIT"> 
+<span class='line'>  3</span>     </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">$</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">jqChart</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>  4</span> </span><span class="WHIT">    </span><span class="COMM">/**
+<span class='line'>  5</span>      * jqPieChart class
+<span class='line'>  6</span>      * &lt;p>This class provides an API for generating graphs.
+<span class='line'>  7</span>      *  It handles registering itself with the Backbone collection
+<span class='line'>  8</span>      *  so that it can render as soon as the collection is fetched.&lt;/p>
+<span class='line'>  9</span>      * &lt;p>jqPieChart extends the jqChart class to provide the "generic"
+<span class='line'> 10</span>      *  options for creating pie charts. The usage is the same, if anything
+<span class='line'> 11</span>      *  needs to be overrided.&lt;/p>
+<span class='line'> 12</span>      * @name jqPieChart
+<span class='line'> 13</span>      * @class jqPieChart
+<span class='line'> 14</span>      * @constructor
+<span class='line'> 15</span>      * @param options
+<span class='line'> 16</span>      *  The options parameter should be a hash. It will accept the following options:
+<span class='line'> 17</span>      * &lt;ul>
+<span class='line'> 18</span>      *   &lt;li>jqplotOptions - These options will be merged with the default options provided by this class.
+<span class='line'> 19</span>      *     Preference will be given to the options provided in this constructor.&lt;/li>
+<span class='line'> 20</span>      *   &lt;li>variables - An array of the variables that should be used for constructing the graphs.
+<span class='line'> 21</span>      *     These variables will fetched from each model provided by the colleciton and inserted
+<span class='line'> 22</span>      *      into an array that will be given to jqplot in a manner specified by the variableType option.
+<span class='line'> 23</span>      *   &lt;/li>
+<span class='line'> 24</span>      *   &lt;li>collection - The collection that will be used as the data source for this chart. This class will register itself
+<span class='line'> 25</span>      *     with the collection so that it calls the "render" function when the data is available. This allows for async data requests,
+<span class='line'> 26</span>      *     and the reuse of collections.&lt;/li>
+<span class='line'> 27</span>      * &lt;/ul>
+<span class='line'> 28</span>      * @return jqplot view object
+<span class='line'> 29</span>      */</span><span class="WHIT">
+<span class='line'> 30</span> </span><span class="WHIT">    </span><span class="STRN">"use strict"</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 31</span> 
+<span class='line'> 32</span> 
+<span class='line'> 33</span> </span><span class="WHIT">    </span><span class="NAME">$.jqplot.config.enablePlugins</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">true</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 34</span> 
+<span class='line'> 35</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">jqPieChart</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">jqChart.extend</span><span class="PUNC">(</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'> 36</span> </span><span class="WHIT">        </span><span class="NAME">jqplotOptions</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'> 37</span> </span><span class="WHIT">            </span><span class="NAME">seriesDefaults</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'> 38</span> </span><span class="WHIT">                </span><span class="NAME">renderer</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NAME">$.jqplot.PieRenderer</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'> 39</span> </span><span class="WHIT">                </span><span class="NAME">rendererOptions</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'> 40</span> </span><span class="WHIT">                    </span><span class="NAME">showDataLabels</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="KEYW">true</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'> 41</span> </span><span class="WHIT">                </span><span class="PUNC">}</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'> 42</span> </span><span class="WHIT">            </span><span class="PUNC">}</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'> 43</span> </span><span class="WHIT">            </span><span class="NAME">axesDefaults</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'> 44</span> </span><span class="WHIT">                </span><span class="NAME">tickRenderer</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NAME">$.jqplot.CanvasAxisTickRenderer</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'> 45</span> </span><span class="WHIT">            </span><span class="PUNC">}</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'> 46</span> </span><span class="WHIT">            </span><span class="NAME">legend</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT"> </span><span class="NAME">show</span><span class="PUNC">:</span><span class="KEYW">true</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">location</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="STRN">'e'</span><span class="WHIT"> </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'> 47</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'> 48</span> 
+<span class='line'> 49</span> </span><span class="WHIT">        </span><span class="NAME">variableType</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">collection</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'> 50</span> </span><span class="WHIT">            </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">self</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 51</span> </span><span class="WHIT">            </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">elements</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="PUNC">[</span><span class="PUNC">]</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 52</span> 
+<span class='line'> 53</span> </span><span class="WHIT">            </span><span class="NAME">collection.forEach</span><span class="PUNC">(</span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">e</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'> 54</span> </span><span class="WHIT">                </span><span class="KEYW">for</span><span class="PUNC">(</span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">i</span><span class="PUNC">=</span><span class="NUMB">0</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">&lt;</span><span class="WHIT"> </span><span class="NAME">self.variables.length</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">i</span><span class="PUNC">++</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'> 55</span> </span><span class="WHIT">                    </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">elements</span><span class="PUNC">[</span><span class="NAME">i</span><span class="PUNC">]</span><span class="WHIT"> </span><span class="PUNC">==</span><span class="WHIT"> </span><span class="KEYW">null</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'> 56</span> </span><span class="WHIT">                        </span><span class="NAME">elements.push</span><span class="PUNC">(</span><span class="PUNC">[</span><span class="NAME">self.variables</span><span class="PUNC">[</span><span class="NAME">i</span><span class="PUNC">]</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">]</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 57</span> </span><span class="WHIT">                        </span><span class="COMM">// If there is a label specified, use that</span><span class="WHIT">
+<span class='line'> 58</span> </span><span class="WHIT">                        </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">self.ticks</span><span class="WHIT"> </span><span class="PUNC">!=</span><span class="WHIT"> </span><span class="KEYW">null</span><span class="WHIT"> </span><span class="PUNC">&&</span><span class="WHIT"> </span><span class="NAME">self.ticks</span><span class="PUNC">[</span><span class="NAME">i</span><span class="PUNC">]</span><span class="WHIT"> </span><span class="PUNC">!=</span><span class="WHIT"> </span><span class="KEYW">null</span><span class="PUNC">)</span><span class="WHIT">
+<span class='line'> 59</span> </span><span class="WHIT">                            </span><span class="NAME">elements</span><span class="PUNC">[</span><span class="NAME">i</span><span class="PUNC">]</span><span class="PUNC">[</span><span class="NUMB">0</span><span class="PUNC">]</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">self.ticks</span><span class="PUNC">[</span><span class="NAME">i</span><span class="PUNC">]</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 60</span> </span><span class="WHIT">                    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'> 61</span> </span><span class="WHIT">                    </span><span class="NAME">elements</span><span class="PUNC">[</span><span class="NAME">i</span><span class="PUNC">]</span><span class="PUNC">[</span><span class="NUMB">1</span><span class="PUNC">]</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">elements</span><span class="PUNC">[</span><span class="NAME">i</span><span class="PUNC">]</span><span class="PUNC">[</span><span class="NUMB">1</span><span class="PUNC">]</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="NAME">e.get</span><span class="PUNC">(</span><span class="NAME">self.variables</span><span class="PUNC">[</span><span class="NAME">i</span><span class="PUNC">]</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 62</span> </span><span class="WHIT">                </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'> 63</span> </span><span class="WHIT">            </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 64</span> 
+<span class='line'> 65</span> </span><span class="WHIT">            </span><span class="COMM">// Nullify the ticks so they aren't provided to the jqplot program by accident.</span><span class="WHIT">
+<span class='line'> 66</span> </span><span class="WHIT">            </span><span class="NAME">self.ticks</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">null</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 67</span> 
+<span class='line'> 68</span> </span><span class="WHIT">            </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="PUNC">[</span><span class="NAME">elements</span><span class="PUNC">]</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 69</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'> 70</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 71</span> </span><span class="WHIT">    </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">jqPieChart</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 72</span> </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 73</span> </span></pre></body></html>

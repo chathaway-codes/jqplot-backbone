@@ -32,7 +32,14 @@ define(["jquery", "backbone", "underscore", "backbone-tastypie", "jquery.jqplot"
      *    </ul>
      *   <li>collection - The collection that will be used as the data source for this chart. This class will register itself
      *     with the collection so that it calls the "render" function when the data is available. This allows for async data requests,
-     *     and the reuse of collections.</li>
+     *     and the reuse of collections. The following things may be passed in as the variable:
+     *      <ul>
+     *          <li>A single collection</li>
+     *          <li>An array of data to use for the graph. This will just be used as is.</li>
+     *          <li>An array of collection. You MUST provide the matching number of "variable" arrays for this to work.
+     *              Also note that you should NOT call fetch on a single collection multiple times before this renders,
+     *              or it may break.</li>
+     *   </li>
      *   <li>ticks - This variable will be used to generate the "ticks" for the line charts. It is passed into jqplot as
      *     the "['axes']['xaxis']['ticks']" option. This should be either null, or an array of strings.</li>
      * </ul>
@@ -119,12 +126,19 @@ define(["jquery", "backbone", "underscore", "backbone-tastypie", "jquery.jqplot"
                 this.ticks = this.options.ticks;
 
             if(this.collection instanceof Array) {
-                // If this already an array, put it into a collection and call render
-                var self = this;
-                setTimeout(function() {
-                    self.collection = new Backbone.Collection(self.collection);
-                    self.render();
-                }, 1);
+                // If this is an array of collection, bind to all of them
+                if(this.collection[0] instanceof Backbone.Collection) {
+                    for(var i=0; i < this.collection.length; i++) {
+                        this.collection[i].bind('reset', this.render, this);
+                    }
+                } else {
+                    // Else, put it into a collection and call render
+                    var self = this;
+                    setTimeout(function() {
+                        self.collection = new Backbone.Collection(self.collection);
+                        self.render();
+                    }, 1);
+                }
             } else {
                 this.collection.bind('reset', this.render, this);
             }
@@ -158,10 +172,9 @@ define(["jquery", "backbone", "underscore", "backbone-tastypie", "jquery.jqplot"
                     this.jqplotOptions['axes']['xaxis']['ticks'] = this.ticks(this.collection);
                 else
                     this.jqplotOptions['axes']['xaxis']['ticks'] = this.ticks;
-                console.log(this.jqplotOptions['axes']['xaxis']['ticks']);
             }
 
-            if(elements.length == 0 || elements[0].length == 0)
+            if(elements == null || elements.length == 0 || elements[0].length == 0)
                 return;
 
             $.jqplot($(this.el).attr('id'), elements, this.jqplotOptions);
@@ -181,7 +194,6 @@ define(["jquery", "backbone", "underscore", "backbone-tastypie", "jquery.jqplot"
         },
 
         dataLines: function() {
-            var elements = []
             var self = this;
             function addElements(e, variables) {
                 var arr = []
@@ -192,25 +204,50 @@ define(["jquery", "backbone", "underscore", "backbone-tastypie", "jquery.jqplot"
                 return arr;
             }
 
-            // If we are dealing with an array of variable variables, do this for each
-            if(this.variables[0] instanceof Array) {
-                for(var i=0; i < this.variables.length; i++) {
-                    var t_el = [];
-                    this.collection.forEach(function(e) {
-                        t_el.push(addElements(e, self.variables[i]));
-                    });
-                    elements.push(t_el);
+            function doAdd(collection, variables) {
+                var elements = [];
+                // If we are dealing with an array of variable variables, do this for each
+                if(variables[0] instanceof Array) {
+                    for(var i=0; i < variables.length; i++) {
+                        var t_el = [];
+                        collection.forEach(function(e) {
+                            t_el.push(addElements(e, variables[i]));
+                        });
+                        elements.push(t_el);
+                    }
                 }
-            }
-            else {
-                this.collection.forEach(function(e) {
-                    elements.push(addElements(e, self.variables));
-                });
+                else {
+                    collection.forEach(function(e) {
+                        elements.push(addElements(e, variables));
+                    });
+    
+                    elements = [elements];
+                }
 
-                elements = [elements];
+                return elements;
             }
 
-            return elements;
+            // If we are dealing with an array of collection, recurse on each
+            if(this.collection instanceof Array) {
+                // If there aren't enough variables to go with the collections, complain
+                if(this.variables.length != this.collection.length)
+                    throw "Not enough variables given for the specified collection!";
+                // First, make sure everything has loaded
+                this.succeeded += 1;
+                if(this.succeeded < this.collection.length)
+                    return;
+                var elements = [];
+                for(var i=0; i < this.collection.length; i++) {
+                    var arr = doAdd(this.collection[i], this.variables[i])
+                    elements.push(arr[0]);
+                 }
+                 this.succeeded = 0;
+                 return elements;
+             } else {
+                return doAdd(this.collection, this.variables);
+             }
+    
+
         },
 
         dataPie: function() {
@@ -244,6 +281,8 @@ define(["jquery", "backbone", "underscore", "backbone-tastypie", "jquery.jqplot"
         },
 
         variableType: "lines",
+        // This is used to count how many collections have been loaded
+        succeeded: 0,
     });
 
     return view;

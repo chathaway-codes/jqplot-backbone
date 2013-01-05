@@ -55,7 +55,6 @@ define(["jquery", "v/jqplot", "jquery.jqplot",
             },
         },
         ticks: function(collection) {
-            console.log("Here!");
             var ticks = [];
             collection.forEach(function(d) {
                 ticks.push(d.get("when"));

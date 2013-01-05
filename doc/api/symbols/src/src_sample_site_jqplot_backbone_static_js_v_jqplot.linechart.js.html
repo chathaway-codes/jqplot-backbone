@@ -1,0 +1,40 @@
+<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"> <style>
+	.KEYW {color: #933;}
+	.COMM {color: #bbb; font-style: italic;}
+	.NUMB {color: #393;}
+	.STRN {color: #393;}
+	.REGX {color: #339;}
+	.line {border-right: 1px dotted #666; color: #666; font-style: normal;}
+	</style></head><body><pre><span class='line'>  1</span> <span class="NAME">define</span><span class="PUNC">(</span><span class="PUNC">[</span><span class="STRN">"jquery"</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="STRN">"v/jqplot"</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="STRN">"jquery.jqplot"</span><span class="PUNC">]</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>  2</span> </span><span class="WHIT">    </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">$</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">jqChart</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>  3</span> </span><span class="WHIT">    </span><span class="COMM">/**
+<span class='line'>  4</span>      * jqLineChart class
+<span class='line'>  5</span>      * &lt;p>This class provides an API for generating graphs.
+<span class='line'>  6</span>      *  It handles registering itself with the Backbone collection
+<span class='line'>  7</span>      *  so that it can render as soon as the collection is fetched.&lt;/p>
+<span class='line'>  8</span>      * &lt;p>jqLineChart simply returns the jqChart object, since by default
+<span class='line'>  9</span>      *  jqplot creates line charts :).&lt;/p>
+<span class='line'> 10</span>      * @name jqLineChart
+<span class='line'> 11</span>      * @class jqLineChart
+<span class='line'> 12</span>      * @constructor
+<span class='line'> 13</span>      * @param options
+<span class='line'> 14</span>      *  The options parameter should be a hash. It will accept the following options:
+<span class='line'> 15</span>      * &lt;ul>
+<span class='line'> 16</span>      *   &lt;li>jqplotOptions - These options will be merged with the default options provided by this class.
+<span class='line'> 17</span>      *     Preference will be given to the options provided in this constructor.&lt;/li>
+<span class='line'> 18</span>      *   &lt;li>variables - An array of the variables that should be used for constructing the graphs.
+<span class='line'> 19</span>      *     These variables will fetched from each model provided by the colleciton and inserted
+<span class='line'> 20</span>      *      into an array that will be given to jqplot in a manner specified by the variableType option.
+<span class='line'> 21</span>      *   &lt;/li>
+<span class='line'> 22</span>      *   &lt;li>collection - The collection that will be used as the data source for this chart. This class will register itself
+<span class='line'> 23</span>      *     with the collection so that it calls the "render" function when the data is available. This allows for async data requests,
+<span class='line'> 24</span>      *     and the reuse of collections.&lt;/li>
+<span class='line'> 25</span>      * &lt;/ul>
+<span class='line'> 26</span>      * @return jqplot view object
+<span class='line'> 27</span>      */</span><span class="WHIT">
+<span class='line'> 28</span> </span><span class="WHIT">    </span><span class="STRN">"use strict"</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 29</span> 
+<span class='line'> 30</span> 
+<span class='line'> 31</span> </span><span class="WHIT">    </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">jqChart</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 32</span> </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 33</span> </span></pre></body></html>
