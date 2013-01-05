@@ -132,6 +132,7 @@ INSTALLED_APPS = (
     'tastypie',
     'rest_api',
     'coconuts',
+    'jqplot_backbone',
 )
 
 # A sample logging configuration. The only tangible logging
